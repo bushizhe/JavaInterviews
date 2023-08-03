@@ -461,13 +461,13 @@ Buffer Pool除了【索引页】和【数据页】，还包括undo页,插入缓�
 
 为了更好的管理这些在Buffer Pool中的缓存页，InnoDB为每个缓存页创建了一个**控制块**，控制块信息包括：【缓存页的表空间、页号、缓存页地址和链表结点】等。控制块也是占用内存的，放在Buffer Pool最前边，接着是缓存页：
 
-![img.png](img.png)
+![img.png](imgs_mysql/img.png)
 当查询一条记录时，InnoDB会把整个页的数据都加载到Buffer Pool中，因为通过索引只能定位到磁盘中的页，而不能定位到页中的一条记录，将页加载到Buffer Pool后，再通过页中的页目录定位到某条具体的记录。
 
 ### 如何管理Buffer Pool
 #### 如何管理空闲页？
 Buffer Pool是一块连续内存空间，MySQL运行一段时间后，缓存页中既有空闲的，也有被使用的，为了快速找到空闲的缓存页，可以使用链表结构，将空闲缓存页的【控制块】作为链表的结点，这个链表称为**Free链表**（空闲链表）
-![img_2.png](img_2.png#pic_center)
+![img_2.png](imgs_mysql/img_2.png#pic_center)
 - Free 链表上除了有控制块，还有一个头节点，该头节点包含链表的头节点地址，尾节点地址，以及当前链表中节点的数量等信息
 - Free链表结点是一个个控制块，且每个控制块包含着对应缓存页的地址，相当于Free链表结点都对应一个空闲的缓存页
 - 有了Free链表后，每当需要从磁盘中加载一个页到Buffer Pool中时，就从Free链表中取一个空闲的缓存页，并把该缓存页对应的控制块信息填上，然后把该缓存页对应的控制块从Free链表中移除
@@ -476,7 +476,7 @@ Buffer Pool是一块连续内存空间，MySQL运行一段时间后，缓存页�
 Buffer Pool不仅可以提高读性能，也可以提高写性能，即更新数据时，不需要每次都写入磁盘，而是将Buffer Pool对应的缓存页标记为**脏页**，然后再由后台线程将脏页写入到磁盘。
 为了能快速知道哪些缓存页是脏的，设计出了**Flush链表**，与Free链表类似，链表的结点也是控制块，区别在于Flush链表的元素都是脏页。
 
-![img_3.png](img_3.png#pic_center)
+![img_3.png](imgs_mysql/img_3.png#pic_center)
 
 有了Flush链表之后，后台线程就可以遍历Flush链表，将脏页写入到磁盘。
 
@@ -487,7 +487,7 @@ LRU算法：链表头部的节点是最近使用的，而链表末尾的节点�
 - 当访问的页不在 Buffer Pool 里，除了要把页放入到 LRU 链表的头部，还要淘汰LRU链表末尾的节点
 
 Buffer Pool中有三种页和链表来管理数据:
-![img_4.png](img_4.png)
+![img_4.png](imgs_mysql/img_4.png)
 
 - Free Page(空闲页): 表示此页未被使用，位于 Free 链表
 - Clean Page(干净页): 表示此页已被使用，但是页面未发生修改，位于LRU 链表
@@ -504,7 +504,7 @@ MySQL中并没有采用简单的LRU算法，因为简单LRU算法存在以下问
 > 要避免预读失效带来影响，最好就是让预读的页停留在 Buffer Pool 里的时间要尽可能的短，让真正被访问的页才移动到 LRU 链表的头部，从而保证真正被读取的热数据留在 Buffer Pool 里的时间尽可能长
 
 MySQL采用改进LRU算法，将LRU划分为两个区域：**old区域和young区域**,young 区域在 LRU 链表的前半部分，old 区域则是在后半部分：
-![img_5.png](img_5.png)
+![img_5.png](imgs_mysql/img_5.png)
 
 old 区域占整个 LRU 链表长度的比例可以通过`innodb_old_blocks_pc` 参数来设置，默认是 37，代表整个 LRU 链表中`young`区域与`old`区域比例是 63:37。划分这两个区域后，预读的页就只需要加入到 old 区域的头部，当页被真正访问的时候，才将页插入 young 区域的头部。如果预读的页一直没有被访问，就会从 old 区域移除，这样就不会影响 young 区域中的热点数据。
 
