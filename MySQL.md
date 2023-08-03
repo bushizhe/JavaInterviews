@@ -8,7 +8,7 @@ BP由**缓存数据页（Page）**和对缓存数据页进行描述的**控制�
 
 Buffer Pool默认⼤⼩是128M, 以Page⻚为单位，Page⻚默认⼤⼩16K，⽽ 控制块的⼤⼩约为数据⻚的5%，⼤ 概是800字节。
 
-<img src="C:\Users\shucheng\AppData\Roaming\Typora\typora-user-images\image-20230803104725183.png" alt="image-20230803104725183" style="zoom:40%;" />
+![image](https://github.com/bushizhe/JavaInterviews/assets/34935033/4fe6596b-b865-4bd8-8a3e-6149c5f04956)
 
 > Buffer Pool大小为128M指的就是缓存页的大小，控制块则一般占5%，所以每次多申请6M的内存空间用于存放控制块。
 
@@ -31,26 +31,26 @@ MySQL中有一个哈希表数据结构，使用表空间号+数据页号，作�
 
 Page根据状态可以分为三种类型：
 
-- **free page**，空闲page，未被使用
-- **clean page**，被使用page，数据没有被修改过
-- **dirty page**，脏页，被使用page，数据被修改过，page页中数据和磁盘数据产生了不一致
+- **free page** ，空闲page，未被使用
+- **clean page** ，被使用page，数据没有被修改过
+- **dirty page** ，脏页，被使用page，数据被修改过，page页中数据和磁盘数据产生了不一致
 
 针对上面的三种page类型，InnoDB通过三种链表结构来维护和管理：
 
-- **free list：**空闲缓冲区，管理free page
+- **free list：** 空闲缓冲区，管理free page
 
   - free链表是把所有空闲的缓冲⻚对应的控制块作为⼀个个的节点放到⼀ 个链表中，这个链表便称之为free链表
   - 基节点: free链表中只有⼀个基节点是不记录缓存⻚信息(单独申请空 间)，它⾥⾯就存放了free链表的头节点的地址，尾节点的地址，还有 free链表⾥当前有多少个节点
 
-- **flush list：**要刷新到磁盘的缓冲区，管理dirty page，内部page按修改时间排序
+- **flush list：** 要刷新到磁盘的缓冲区，管理dirty page，内部page按修改时间排序
 
   - InnoDB引擎为了提⾼处理效率，在每次修改缓冲⻚后，并不是⽴刻把 修改刷新到磁盘上，⽽是在未来的某个时间点进⾏刷新操作. 所以需要 使⽤到flush链表存储脏⻚，凡是被修改过的缓冲⻚对应的控制块都会作 为节点加⼊到flush链表
 
   - flush链表结构和free链表结构相似
 
-    <img src="C:\Users\shucheng\AppData\Roaming\Typora\typora-user-images\image-20230803110259424.png" alt="image-20230803110259424" style="zoom:50%;" />
+![image](https://github.com/bushizhe/JavaInterviews/assets/34935033/88a77836-bbfa-4419-8b5f-8a54da4f00eb)
 
-- **lru list：**正在使用的缓冲区，管理clean page和dirty page，缓冲区以midpoint为基点，前面链表称为new列表区，存放经常访问的数据，占63%，后面链表称为old列表区，存放使用较少数据，占37%。
+- **lru list：** 正在使用的缓冲区，管理clean page和dirty page，缓冲区以midpoint为基点，前面链表称为new列表区，存放经常访问的数据，占63%，后面链表称为old列表区，存放使用较少数据，占37%。
 
 ## 为什么写缓冲区，仅适用于非唯⼀普通索引页？
 
@@ -58,7 +58,7 @@ Page根据状态可以分为三种类型：
 
 **作用：** 在进⾏DML操作时，如果请求的辅助索引（⼆级索引）没有在缓冲 池中时，并不会⽴刻将磁盘⻚加载到缓冲池，⽽是在CB记录缓冲变更，等 未来数据被读取时，再将数据合并恢复到BP中
 
-<img src="C:\Users\shucheng\AppData\Roaming\Typora\typora-user-images\image-20230803110935839.png" alt="image-20230803110935839" style="zoom:33%;" />
+![image](https://github.com/bushizhe/JavaInterviews/assets/34935033/95875320-96ea-466f-b29a-e1579f4649e6)
 
 - ChangeBuffer用于存储SQL变更操作，如`insert/update/delete`等SQL语句
 - ChangeBuffer中的每个变更操作都有其对应的数据⻚，并且该数据⻚ 未加载到缓存中
@@ -67,7 +67,7 @@ Page根据状态可以分为三种类型：
 
 **Change Buffer更新流程：**
 
-<img src="C:\Users\shucheng\AppData\Roaming\Typora\typora-user-images\image-20230803111207528.png" alt="image-20230803111207528" style="zoom:40%;" />
+![image](https://github.com/bushizhe/JavaInterviews/assets/34935033/0d253c7f-473f-421d-a753-37f566a4ed59)
 
 **写缓冲区，仅适用于非唯一普通索引页，为什么？**
 
@@ -79,7 +79,7 @@ LRU = Least Recently Used（最近最少使用），新数据从链表头部加�
 
 ### 普通LRU算法
 
-<img src="C:\Users\shucheng\AppData\Roaming\Typora\typora-user-images\image-20230803111716889.png" alt="image-20230803111716889" style="zoom:50%;" />
+![image](https://github.com/bushizhe/JavaInterviews/assets/34935033/87899efb-309d-49b0-a379-bdc631a87844)
 
 - 当要访问某个⻚时，如果不在Buffer Pool，需要把该⻚加载到缓冲池, 并且把该缓冲⻚对应的控制块作为节点添加到LRU链表的头部
 - 当要访问某个⻚时，如果在Buffer Pool中，则直接把该⻚对应的控制块 移动到LRU链表的头部 
@@ -94,13 +94,13 @@ LRU = Least Recently Used（最近最少使用），新数据从链表头部加�
 - **缺点：**
 
   - 如果发⽣全表扫描（⽐如：没有建⽴合适的索引 or 查询时使⽤select * 等），则有很⼤可能将真正的热数据淘汰掉
-  - 由于MySQL中存在**预读机制**，很多预读的⻚都会被放到LRU链表的表 头。如果这些预读的⻚都没有⽤到的话，这样，会导致很多尾部的缓冲 ⻚很快就会被淘汰。
+  - 由于MySQL中存在**预读机制** ，很多预读的⻚都会被放到LRU链表的表 头。如果这些预读的⻚都没有⽤到的话，这样，会导致很多尾部的缓冲 ⻚很快就会被淘汰。
 
 ### 改进型LRU算法
 
 将链表分为new和old两个部分，加⼊元素时并不是从表头插入，⽽是从中间`midpoint`位置插⼊(就是说从磁盘中新读出的数据会放在冷 数据区的头部)，如果数据很快被访问，那么page就会向new列表头部移 动，如果数据没有被访问，会逐步向old尾部移动，等待淘汰
 
-<img src="C:\Users\shucheng\AppData\Roaming\Typora\typora-user-images\image-20230803112053150.png" alt="image-20230803112053150" style="zoom:50%;" />
+![image](https://github.com/bushizhe/JavaInterviews/assets/34935033/aecf2069-76c4-4ea7-ab13-4c5bb7cf4bf9)
 
 冷数据区的数据⻚什么时候会被转到到热数据区呢 ?
 
@@ -141,7 +141,7 @@ Page是整个InnoDB存储的最基本构件，也是InnoDB磁盘管理的最⼩�
 - 系统页（System Page）
 - 事务数据页（Transaction System Page）
 
-<img src="C:\Users\shucheng\AppData\Roaming\Typora\typora-user-images\image-20230803123728796.png" alt="image-20230803123728796" style="zoom:30%;" />
+![image](https://github.com/bushizhe/JavaInterviews/assets/34935033/44dfab6c-0d5a-44e6-9bbf-96a99e648ab7)
 
 | 名称             | 占用大小 | 说明                                 |
 | ---------------- | -------- | ------------------------------------ |
@@ -153,13 +153,13 @@ Page是整个InnoDB存储的最基本构件，也是InnoDB磁盘管理的最⼩�
 | Page Directory   | 不确定   | 页目录，存储用户记录的相对位置       |
 | File Trailer     | 8字节    | 文件尾，检验页是否完整               |
 
-- **File Header：**记录Page的头信息，重要的是`FIL_PAGE_PREV`和`FIL_PAGE_NEXT`字段，通过这两个字段，可以找到该页的上一页和下一页，实际上所有页通过这两个字段可以形成一条双向链表；
-- **Page Header：**记录Page的状态信息
-- **Infimum和Supremum：**两个伪⾏记录，Infimum（下确界）记录⽐ 该⻚中任何主键值都要⼩的值，Supremum （上确界）记录⽐该⻚中 任何主键值都要⼤的值，这个伪记录分别构成了⻚中记录的边界；
-- **User Records：**存放实际的数据行记录
-- **Free Space：**存放的是空闲空间，被删除的⾏记录会被记录成空闲空间；
-- **Page Directory：**记录着与二叉查找相关的信息
-- **File Trailer：**存储⽤于检测数据完整性的校验和等数据
+- **File Header：** 记录Page的头信息，重要的是`FIL_PAGE_PREV`和`FIL_PAGE_NEXT`字段，通过这两个字段，可以找到该页的上一页和下一页，实际上所有页通过这两个字段可以形成一条双向链表；
+- **Page Header：** 记录Page的状态信息
+- **Infimum和Supremum：** 两个伪⾏记录，Infimum（下确界）记录⽐ 该⻚中任何主键值都要⼩的值，Supremum （上确界）记录⽐该⻚中 任何主键值都要⼤的值，这个伪记录分别构成了⻚中记录的边界；
+- **User Records：** 存放实际的数据行记录
+- **Free Space：** 存放的是空闲空间，被删除的⾏记录会被记录成空闲空间；
+- **Page Directory：** 记录着与二叉查找相关的信息
+- **File Trailer：** 存储⽤于检测数据完整性的校验和等数据
 
 **页结构整体上可以分为三部分：通用部分（文件头、文件尾）、存储记录空间、索引部分。**
 
@@ -175,14 +175,14 @@ Page是整个InnoDB存储的最基本构件，也是InnoDB磁盘管理的最⼩�
 
   数据页中行记录按照主键值由小到大顺序串联成一个单链表（页中记录是以单向链表形式存储的），且单链表的链表头为最⼩记录，链表尾为最 ⼤记录。并且为了更快速地定位到指定的⾏记录，通过 Page Directory 实现⽬录的功能，借助 Page Directory使⽤⼆分法快速找到需要查找的 ⾏记录。
 
-  <img src="C:\Users\shucheng\AppData\Roaming\Typora\typora-user-images\image-20230803125018672.png" alt="image-20230803125018672" style="zoom:40%;" />
+![image](https://github.com/bushizhe/JavaInterviews/assets/34935033/f09dc399-a1e8-4ba4-a651-f0cf4add9fe0)
 
 ## 说一下聚簇索引与非聚簇索引？
 
 聚集索引与⾮聚集索引的区别是：叶节点是否存放⼀整⾏记录;
 
-- **聚簇索引：**将数据存储与索引放到了⼀块,索引结构的叶⼦节点保存了行数据
-- **非聚簇索引：**将数据与索引分开存储，索引结构的叶⼦节点指向了数据 对应的位置
+- **聚簇索引：** 将数据存储与索引放到了⼀块,索引结构的叶⼦节点保存了行数据
+- **非聚簇索引：** 将数据与索引分开存储，索引结构的叶⼦节点指向了数据 对应的位置
 
 InnoDB主键使用的是聚簇索引结构存储，MyISAM不管是主键索引还是二级索引使用的都是非聚簇索引。
 
@@ -200,7 +200,7 @@ InnoDB主键使用的是聚簇索引结构存储，MyISAM不管是主键索引�
 
   InnoDB辅助索引，也叫作⼆级索引，是根据索引列构建 B+Tree结构。 但在 B+Tree 的叶⼦节点中只存了索引列和主键的信息。⼆级索引占⽤ 的空间会⽐聚簇索引⼩很多， 通常创建辅助索引就是为了提升查询效 率。⼀个表InnoDB只能创建⼀个聚簇索引，但可以创建多个辅助索 引
 
-  <img src="C:\Users\shucheng\AppData\Roaming\Typora\typora-user-images\image-20230803135206217.png" alt="image-20230803135206217" style="zoom:40%;" />
+![image](https://github.com/bushizhe/JavaInterviews/assets/34935033/c286c8b3-84a8-4bbd-a3a1-def88cb0960d)
 
 ### 非聚簇索引
 
@@ -208,7 +208,7 @@ InnoDB主键使用的是聚簇索引结构存储，MyISAM不管是主键索引�
 
 表数据存储在独⽴的地⽅，这两颗B+树的叶⼦节点都使⽤⼀个地址指向真 正的表数据，对于表数据来说，这两个键没有任何差别。由于 索引树是独 ⽴的，通过辅助键检索⽆需访问主键的索引树
 
-<img src="C:\Users\shucheng\AppData\Roaming\Typora\typora-user-images\image-20230803135420492.png" alt="image-20230803135420492" style="zoom:33%;" />
+![image](https://github.com/bushizhe/JavaInterviews/assets/34935033/880788c8-7d8f-4de2-94c9-49188c43beda)
 
 ### 聚簇索引优点
 
@@ -318,7 +318,7 @@ SELECT * FROM users3 WHERE MATCH(NAME) AGAINST('aa*' IN BOOLEAN MODE);
 
   MySQL创建联合索引的规则是: ⾸先会对联合索引最左边的字段进⾏排 序( 例⼦中是 user_name ), 在第⼀个字段的基础之上 再对第⼆个字段进 ⾏排序 ( 例⼦中是 user_age ) 
 
-  <img src="C:\Users\shucheng\AppData\Roaming\Typora\typora-user-images\image-20230803141226536.png" alt="image-20230803141226536" style="zoom:40%;" />
+![image](https://github.com/bushizhe/JavaInterviews/assets/34935033/f0e251d0-6359-4063-911d-dfd7f46171fa)
 
   最佳左前缀原则其实是和B+树的结构有关系, 最左字段肯定是有序的, 第 ⼆个字段则是⽆序的(联合索引的排序⽅式是: 先按照第⼀个字段进⾏排 序,如果第⼀个字段相等再根据第⼆个字段排序). 所以如果直接使⽤第⼆ 个字段 user_age 通常是使⽤不到索引的
 
@@ -338,11 +338,11 @@ select * from users where user_name like "张%" and user_age = 10;
 
 在 (name,age) 索引⾥⾯特意去掉了 age 的值，这个过程 InnoDB 并 不会去看 age 的值，只是按顺序把“name 第⼀个字是’张’”的记录⼀条条取 出来回表。因此，需要回表 4 次
 
-<img src="C:\Users\shucheng\AppData\Roaming\Typora\typora-user-images\image-20230803141727255.png" alt="image-20230803141727255" style="zoom:33%;" />
+![image](https://github.com/bushizhe/JavaInterviews/assets/34935033/da9563ad-2e17-4605-9514-e07bc3fb9db1)
 
 MySQL5.6引入索引下推优化，可以在索引遍历过程中，对索引中包含的字段先做判断，过滤掉不符合条件的记录，减少回表次数。
 
-<img src="C:\Users\shucheng\AppData\Roaming\Typora\typora-user-images\image-20230803141920885.png" alt="image-20230803141920885" style="zoom:33%;" />
+![image](https://github.com/bushizhe/JavaInterviews/assets/34935033/07e38e74-6514-4268-980f-cc14e9856e42)
 
 如果没有索引下推优化（ICP优化），当进行索引查询时，首先根据索引来查找记录，然后再根据where条件来过滤记录；
 
