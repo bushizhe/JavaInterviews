@@ -42,15 +42,15 @@
 
 ## 类加载器的层次
 
-![img.png](imgs_jvm/类加载器层次.png)
+<img alt="img.png" height="400" src="imgs_jvm/类加载器层次.png" width="600"/>
 
 ## 双亲委派机制
 
-![img.png](imgs_jvm/双亲委派机制.png)
+<img alt="img.png" height="400" src="imgs_jvm/双亲委派机制.png" width="600"/>
 
 ## 栈帧结构是什么样子？
 
-![img.png](imgs_jvm/栈帧结构.png)
+<img alt="img.png" height="220" src="imgs_jvm/栈帧结构.png" width="320"/>
 
 - 附加信息：栈帧的高度，虚拟机版本信息
 - 栈帧信息：附加信息+动态链接+方法的返回地址
@@ -63,10 +63,12 @@
 ## java堆为什么要进行分代设计？
 
 Java堆新老年代划分：
-![img.png](imgs_jvm/java堆_新老年代划分.png)
+
+<img alt="img.png" height="230" src="imgs_jvm/java堆_新老年代划分.png" width="520"/>
 
 Eden区与S区
-![img.png](imgs_jvm/java堆_Eden区与S区.png)
+
+<img alt="img.png" height="230" src="imgs_jvm/java堆_Eden区与S区.png" width="520"/>
 
 ## 对象的创建过程
 
@@ -97,14 +99,14 @@ GC是由JVM自动完成的，根据JVM系统环境而定，所以时机是不确
 ### 可达性分析/根搜索算法
 
 **通过GC Root的对象，开始向下寻找，看某个对象是否可达**
-![img.png](imgs_jvm/可达性分析算法.png)
+<img alt="img.png" height="300" src="imgs_jvm/可达性分析算法.png" width="600"/>
 
 可以作为GC
 Root：类加载器、Thread、虚拟机栈本地变量表、static成员、常量引用和本地方法栈的变量等。（虚拟机栈（栈帧中的本地变量表）中引用的对象；方法区中类静态属性引用的对象；方法区中常量引用的对象；本地方法栈中JNI（即一般说的Native方法）引用的对象）
 
 ## 对象被判定为不可达对象之后就“死”了吗
 
-![img.png](imgs_jvm/对象生命周期.png)
+<img alt="img.png" height="280" src="imgs_jvm/对象生命周期.png" width="590"/>
 
 ## 垃圾收集算法
 
@@ -113,10 +115,11 @@ Root：类加载器、Thread、虚拟机栈本地变量表、static成员、常�
 ### 标记-清除 (Mark-Sweep)
 
 标记：找出内存中需要回收的对象，并且标记；此时堆中所有对象都会被扫描一遍，从而才能确定需要回收的对象，比较耗时。
-![img.png](imgs_jvm/GC_mark_sweep_mark.png)
+
+<img alt="img.png" height="220" src="imgs_jvm/GC_mark_sweep_mark.png" width="500" align="center"/>
 
 清除：清除掉被标记需要回收的对象，释放出对应的空间，如下：
-![img.png](imgs_jvm/GC_mark_sweep_sweep.png)
+<img alt="img.png" height="220" src="imgs_jvm/GC_mark_sweep_sweep.png" width="500" align="center"/>
 
 缺点：
 
@@ -127,11 +130,11 @@ Root：类加载器、Thread、虚拟机栈本地变量表、static成员、常�
 
 将内存划分为两块相等的区域，每次只使用其中一块，如下：
 
-![img.png](imgs_jvm/GC_mark_copying_1.png)
+<img alt="img.png" height="220" src="imgs_jvm/GC_mark_copying_1.png" width="500"/>
 
 当其中一块内存使用完，就将还存活的对象复制到另外一块上，然后把已经使用过的内存空间一次清除掉。
 
-![img.png](imgs_jvm/GC_mark_copying_2.png)
+<img alt="img.png" height="220" src="imgs_jvm/GC_mark_copying_2.png" width="500"/>
 
 缺点：空间利用率低
 
@@ -144,11 +147,11 @@ Root：类加载器、Thread、虚拟机栈本地变量表、static成员、常�
 
 > 上述过程相对”复制算法“来讲，少了一个”保留区“
 
-![img.png](imgs_jvm/GC_mark_compact_1.png)
+<img alt="img.png" height="220" src="imgs_jvm/GC_mark_compact_1.png" width="500"/>
 
 让所有存活对象都向一端移动，清理掉边界以外的内存。
 
-![img.png](imgs_jvm/GC_mark_compact_2.png)
+<img alt="img.png" height="220" src="imgs_jvm/GC_mark_compact_2.png" width="500"/>
 
 上面介绍了三种垃圾收集算法，那么在堆内存中如何选择？
 
@@ -159,7 +162,7 @@ Root：类加载器、Thread、虚拟机栈本地变量表、static成员、常�
 
 > 收集算法是内存回收的方法论，垃圾收集器是内存回收的具体实现。
 
-![img.png](imgs_jvm/垃圾收集器.png)
+<img alt="img.png" height="250" src="imgs_jvm/垃圾收集器.png" width="500"/>
 
 ### Serial
 
@@ -218,7 +221,7 @@ CMS（Concurrent Mark Sweep）收集器是一种以获取`最短回收停顿时�
 
 整个过程中，并发标记和并发清除，收集器线程可以与用户线程一起工作，所以总体上来说，CMS收集器的内存回收过程是与用户线程一起并发地执行的。
 
-![img.png](imgs_jvm/GC_collector_cms.png)
+<img alt="img.png" height="180" src="imgs_jvm/GC_collector_cms.png" width="450"/>
 
 - 优点：并发收集、低停顿
 - 缺点：产生大量空间碎片、并发阶段会降低吞吐量
@@ -238,7 +241,7 @@ CMS（Concurrent Mark Sweep）收集器是一种以获取`最短回收停顿时�
 
 （3）可预测的停顿（比CMS更先进的地方在于能让使用者明确指定一个长度为M毫秒的时间片段内，消耗在垃圾收集器上的时间不得超过N毫秒）
 
-![img.png](imgs_jvm/GC_G1.png)
+<img alt="img.png" height="180" src="imgs_jvm/GC_G1.png" width="500"/>
 
 G1工作过程如下：
 
@@ -247,7 +250,7 @@ G1工作过程如下：
 - 最终标记（Final Marking），修正在并发标记阶段因为用户程序的并发执行导致变动的数据，需暂停用户线程
 - 筛选回收（Live Data Counting and Evacuation），对各个Region的回收价值和成本进行排序，根据用户所期望的GC停顿时间制定回收计划
 
-![img.png](imgs_jvm/GC_G1_工作过程.png)
+<img alt="img.png" height="180" src="imgs_jvm/GC_G1_工作过程.png" width="500" align="center"/> 
 
 ### ZGC
 
@@ -352,4 +355,4 @@ JDK 7开始使用，JDK 8非常成熟，JDK 9默认的垃圾收集器，适用�
 
 ## JVM性能优化指南
 
-![img.png](imgs_jvm/JVM性能优化指南.png)
+<img alt="img.png" height="400" src="imgs_jvm/JVM性能优化指南.png" width="500"/>
