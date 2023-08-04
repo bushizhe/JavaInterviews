@@ -96,7 +96,7 @@ SpringBoot默认的配置文件有两种格式：`application.properties`和`app
 
 - @Environment
 
-Environment 是 SpringCore 中的一个用于读取配置文件的类，将此类使用 @Autowired 注入到类中就可以使用它的getProperty方法来获取某个配置项的值
+  Environment 是 SpringCore 中的一个用于读取配置文件的类，将此类使用 @Autowired 注入到类中就可以使用它的getProperty方法来获取某个配置项的值
 
 - @ConfigurationProperties
 
