@@ -119,6 +119,7 @@ Root：类加载器、Thread、虚拟机栈本地变量表、static成员、常�
 <img alt="img.png" height="220" src="imgs_jvm/GC_mark_sweep_mark.png" width="500" align="center"/>
 
 清除：清除掉被标记需要回收的对象，释放出对应的空间，如下：
+
 <img alt="img.png" height="220" src="imgs_jvm/GC_mark_sweep_sweep.png" width="500" align="center"/>
 
 缺点：
