@@ -1,5 +1,32 @@
 [toc]
 
+## 一张表中有ID自增主键，当insert了17条记录后，删除第15，16和17条记录，接着重启MySQL，再次insert一条记录，这条记录的ID是18还是15？
+
+- 如果表的类型是`MyISAM`，则为18，因为`MyISAM`表会把自增主键的最大ID记录到数据文件中，重启MySQL，自增主键的最大ID也不会丢失；
+- 如果表的类型是`InnoDB`，则为15，`InnoDB`表只是把自增主键的最大ID存储到内存中，所以重启数据库或者对表进行操作，都会导致最大ID丢失；
+
+## Heap 表是什么？
+
+`heap`表存在于内存中，用于临时高速存储，需要注意：
+
+- `BLOB`或`TEXT`字段不允许
+- 只能使用比较运算符`=,<,>,>=,<=`
+- `heap`表不支持`AUTO_INCREMENT`
+- 索引不可为`NULL`
+
+## 如何区分FLOAT和DOUBLE，CHAR_LENGTH和LENGTH？
+
+### FLOAT和DOUBLE
+
+- 浮点数以8位精度存储在`FLOAT`中，并且有4个字节
+- 浮点数存储在`DOUBLE`中，精度为18位，有8个字节
+
+### CHAR_LENGTH和LENGTH？
+
+`CHAR_LENGTH`是字符数，而`LENGTH` 是字节数。`Latin`字符的这两个数据是相同的，但是对于`Unicode`和其他编码，它们是不同的.
+
+####  
+
 ## 什么是BufferPool？
 
 **缓冲池，简称BP，用来缓存表数据和索引数据，减少磁盘IO操作，提升效率。**
